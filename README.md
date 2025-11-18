@@ -90,7 +90,7 @@ This guarantees every package emits the same vendor:publish tags and console rem
 
 ### Package Test Case
 
-`Atlas\Core\Testing\PackageTestCase` bootstraps an in-memory sqlite connection and ships helpers for loading migrations or running artisan commands from Testbench, so every package test suite starts from the same baseline.
+`Atlas\Core\Testing\PackageTestCase` bootstraps an in-memory sqlite connection and ships helpers for loading migrations or running artisan commands from Testbench, so every package test suite starts from the same baseline. See the [Package Integration Guide](./docs/Packages.md) for a full walkthrough.
 
 ### Core Metadata Contract
 
