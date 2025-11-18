@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Atlas\Core\Providers;
 
+use Atlas\Core\Publishing\TagBuilder;
 use Illuminate\Support\ServiceProvider;
+use LogicException;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -15,6 +17,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 abstract class PackageServiceProvider extends ServiceProvider
 {
+    protected string $packageBasePath = '';
+
+    private ?TagBuilder $packageTags = null;
+
     protected function notifyPendingInstallSteps(
         string $packageName,
         ?string $configFile = null,
@@ -62,6 +68,36 @@ abstract class PackageServiceProvider extends ServiceProvider
         $output->writeln('');
     }
 
+    protected function packagePath(string $path = ''): string
+    {
+        if ($this->packageBasePath === '') {
+            throw new LogicException(sprintf('Package base path must be defined on %s.', static::class));
+        }
+
+        $base = rtrim($this->packageBasePath, DIRECTORY_SEPARATOR);
+
+        if ($path === '') {
+            return $base;
+        }
+
+        return $base.DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR);
+    }
+
+    protected function packageConfigPath(string $file): string
+    {
+        return $this->packagePath('config/'.$file);
+    }
+
+    protected function packageDatabasePath(string $path = ''): string
+    {
+        return $this->packagePath('database'.($path !== '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : ''));
+    }
+
+    protected function tags(): TagBuilder
+    {
+        return $this->packageTags ??= new TagBuilder($this->packageSlug());
+    }
+
     protected function shouldSkipInstallNotification(): bool
     {
         return $this->app->runningUnitTests();
@@ -99,4 +135,6 @@ abstract class PackageServiceProvider extends ServiceProvider
 
         return $matches !== false && $matches !== [];
     }
+
+    abstract protected function packageSlug(): string;
 }

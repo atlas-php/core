@@ -126,9 +126,18 @@ class PackageServiceProviderTest extends TestCase
  */
 class StubPackageServiceProvider extends PackageServiceProvider
 {
+    protected string $packageBasePath;
+
     private ?TestConsoleOutput $output = null;
 
     private bool $skipNotifications = true;
+
+    public function __construct($app)
+    {
+        parent::__construct($app);
+
+        $this->packageBasePath = dirname(__DIR__, 2);
+    }
 
     public function setSkipNotifications(bool $skipNotifications): void
     {
@@ -183,6 +192,11 @@ class StubPackageServiceProvider extends PackageServiceProvider
     protected function shouldSkipInstallNotification(): bool
     {
         return $this->skipNotifications;
+    }
+
+    protected function packageSlug(): string
+    {
+        return 'stub package';
     }
 }
 

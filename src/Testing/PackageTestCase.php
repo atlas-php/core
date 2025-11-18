@@ -59,8 +59,6 @@ abstract class PackageTestCase extends OrchestraTestCase
             throw new RuntimeException('Unable to mock console output for the requested command.');
         }
 
-        $pending->run();
-
         return $pending;
     }
 }
