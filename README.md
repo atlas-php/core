@@ -1,6 +1,10 @@
 # Atlas Core
 
-Core utilities shared across Atlas PHP packages. This repository ships as a standalone Composer package that can be installed in any Laravel 10/11+ application or package.
+Atlas Core centralizes the shared building blocks every Atlas package depends on. It ships as an installable Composer package for Laravel 10/11+ and focuses on three areas:
+
+- **Data layer helpers** — `Atlas\Core\Models\AtlasModel` and `Atlas\Core\Config\TableResolver` keep tables/connection overrides consistent across packages.
+- **Provider utilities** — `Atlas\Core\Providers\PackageServiceProvider` and `Atlas\Core\Publishing\TagBuilder` standardize `vendor:publish` tags and install prompts.
+- **Developer tooling** — a `PackageTestCase`, `CoreServiceInterface` metadata contract, and orchestration helpers that make testing and diagnostics uniform.
 
 ---
 
@@ -10,68 +14,87 @@ Core utilities shared across Atlas PHP packages. This repository ships as a stan
 composer require atlas-php/core
 ```
 
-After installation the package auto-discovers `Atlasphp\Core\Providers\CoreServiceProvider`, so no manual provider registration is required.
+Laravel auto-discovers `Atlas\Core\Providers\CoreServiceProvider`, so no manual registration is required.
 
 ---
 
-## Usage
+## Features
 
-### Resolve the Core Service
+### Configurable Atlas Model
 
-The service provider binds `Atlasphp\Core\Contracts\CoreServiceInterface` as a singleton. Type-hinting the interface in any constructor or invokable class provides access to package metadata:
+Extend `Atlas\Core\Models\AtlasModel` to opt into configuration-driven table names and optional connection overrides:
 
 ```php
-use Atlasphp\Core\Contracts\CoreServiceInterface;
+use Atlas\Core\Models\AtlasModel;
 
-final class AboutCommand
+final class Relay extends AtlasModel
 {
-    public function __construct(private CoreServiceInterface $core) {}
+    protected string $configPrefix = 'atlas-relay'; // maps to config('atlas-relay.*')
+    protected string $tableKey = 'relays';          // resolves config('atlas-relay.tables.relays')
 
-    public function handle(): void
+    protected function defaultTableName(): string
     {
-        $this->components->info(
-            sprintf(
-                'Using package %s — %s',
-                $this->core->packageName(),
-                $this->core->packageDescription(),
-            ),
-        );
+        return 'atlas_relays';
     }
 }
 ```
 
-Typical use cases include:
+AtlasModel pulls table/connection values from `<prefix>.tables.<key>` and `<prefix>.database.connection`, falling back to the defaults you supply. This keeps migrations, factories, and Eloquent models in sync across every package.
 
-- Emitting diagnostics in artisan commands or HTTP responses.
-- Displaying package build information on health dashboards.
-- Providing metadata to downstream logging or observability systems.
+### Table Resolver (standalone)
 
-### Overriding Metadata
-
-If a consuming project needs to expose custom metadata (for example, a fork or repackaged distribution), simply bind `CoreServiceInterface` to a custom implementation during the application boot process:
+Need the same behavior outside an Eloquent model? Use `Atlas\Core\Config\TableResolver` directly:
 
 ```php
-use Atlasphp\Core\Contracts\CoreServiceInterface;
-use Illuminate\Support\ServiceProvider;
+$resolver = new TableResolver('atlas-assets');
+$table = $resolver->resolve('assets', 'atlas_assets');
+$connection = $resolver->resolveConnection();
+```
 
-final class CustomCoreMetadataServiceProvider extends ServiceProvider
+### Unified Publish Tags & Install Prompts
+
+`Atlas\Core\Providers\PackageServiceProvider` adds helpers for console onboarding:
+
+```php
+use Atlas\Core\Providers\PackageServiceProvider;
+use Atlas\Core\Publishing\TagBuilder;
+
+final class AtlasAssetsServiceProvider extends PackageServiceProvider
 {
-    public function register(): void
-    {
-        $this->app->singleton(CoreServiceInterface::class, fn () => new class implements CoreServiceInterface {
-            public function packageName(): string
-            {
-                return 'custom/core-overlay';
-            }
+    private TagBuilder $tags;
 
-            public function packageDescription(): string
-            {
-                return 'Provides organization-specific defaults.';
-            }
-        });
+    public function boot(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([...], $this->tags()->config());
+            $this->publishes([...], $this->tags()->migrations());
+
+            $this->notifyPendingInstallSteps(
+                'Atlas Assets',
+                'atlas-assets.php',
+                $this->tags()->config(),
+                '*atlas_assets*',
+                $this->tags()->migrations()
+            );
+        }
+    }
+
+    private function tags(): TagBuilder
+    {
+        return $this->tags ??= new TagBuilder('atlas assets');
     }
 }
 ```
+
+This guarantees every package emits the same vendor:publish tags and console reminders.
+
+### Package Test Case
+
+`Atlas\Core\Testing\PackageTestCase` bootstraps an in-memory sqlite connection and ships helpers for loading migrations or running artisan commands from Testbench, so every package test suite starts from the same baseline.
+
+### Core Metadata Contract
+
+`Atlas\Core\Contracts\CoreServiceInterface` exposes the package name/description for health checks and diagnostics. Each consuming package can override the binding to describe itself while keeping the API consistent.
 
 ---
 
@@ -82,8 +105,6 @@ final class CustomCoreMetadataServiceProvider extends ServiceProvider
 | `composer lint`    | Formats the codebase via Laravel Pint. |
 | `composer analyse` | Runs Larastan static analysis.         |
 | `composer test`    | Executes PHPUnit test suite.           |
-
-All PRDs and internal contribution standards require these commands to pass before merging changes.
 
 ---
 
