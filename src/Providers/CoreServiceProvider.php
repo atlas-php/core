@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Atlasphp\Core\Providers;
+namespace Atlas\Core\Providers;
 
-use Atlasphp\Core\Contracts\CoreServiceInterface;
-use Atlasphp\Core\Services\CoreService;
+use Atlas\Core\Contracts\CoreServiceInterface;
+use Atlas\Core\Services\CoreService;
 use Illuminate\Support\ServiceProvider;
 
 /**

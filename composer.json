@@ -15,18 +15,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Atlasphp\\Core\\": "src/"
+            "Atlas\\Core\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Atlasphp\\Core\\Tests\\": "tests/"
+            "Atlas\\Core\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Atlasphp\\Core\\Providers\\CoreServiceProvider"
+                "Atlas\\Core\\Providers\\CoreServiceProvider"
             ]
         }
     },

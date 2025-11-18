@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Atlasphp\Core\Services;
+namespace Atlas\Core\Services;
 
-use Atlasphp\Core\Contracts\CoreServiceInterface;
+use Atlas\Core\Contracts\CoreServiceInterface;
 use InvalidArgumentException;
 
 /**

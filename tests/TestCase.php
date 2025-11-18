@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Atlasphp\Core\Tests;
+namespace Atlas\Core\Tests;
 
-use Atlasphp\Core\Providers\CoreServiceProvider;
-use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Atlas\Core\Providers\CoreServiceProvider;
+use Atlas\Core\Testing\PackageTestCase;
 
 /**
  * Class TestCase
@@ -13,7 +13,7 @@ use Orchestra\Testbench\TestCase as OrchestraTestCase;
  * Provides the base Testbench configuration for exercising the atlas-php/core package.
  * PRD Reference: Package bootstrap instructions provided in the core package task brief.
  */
-abstract class TestCase extends OrchestraTestCase
+abstract class TestCase extends PackageTestCase
 {
     protected function getPackageProviders($app): array
     {

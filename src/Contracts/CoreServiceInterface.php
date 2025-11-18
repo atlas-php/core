@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Atlasphp\Core\Contracts;
+namespace Atlas\Core\Contracts;
 
 /**
  * Interface CoreServiceInterface
