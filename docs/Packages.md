@@ -1,6 +1,6 @@
 # Atlas Core — Package Integration Guide
 
-This document explains how to integrate `atlas-php/core` into other Atlas packages so every project shares the same testing harness, configuration conventions, and service-provider behaviors.
+This document explains how to integrate `atlas-php/core` into other Atlas packages so every project shares the same testing harness, configuration conventions, and service-provider behaviors. For a full repo-style walkthrough, see the [Package Implementation Example](./Example.md).
 
 ## Testing with `PackageTestCase`
 

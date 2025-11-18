@@ -17,7 +17,7 @@ Laravel auto-discovers `Atlas\Core\Providers\CoreServiceProvider`.
 - **Provider & publish helpers** — `PackageServiceProvider` + `TagBuilder` handle config/migration publishing and install reminders. [Learn more ➜](./docs/Packages.md#package-service-providers--publishing)
 - **Metadata contract** — `CoreServiceInterface` exposes package identification that consumers can override when needed.
 
-See the [Package Integration Guide](./docs/Packages.md) for end-to-end usage patterns and recommendations.
+See the [Package Integration Guide](./docs/Packages.md) and the detailed [Package Implementation Example](./docs/Example.md) for end-to-end usage patterns and sample structures.
 
 ## Quality Assurance
 
