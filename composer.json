@@ -1,0 +1,40 @@
+{
+    "name": "atlas-php/core",
+    "description": "Core utilities for Atlas PHP Laravel packages.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^10.0 || ^11.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.13 || ^9.0",
+        "phpunit/phpunit": "^10.5",
+        "laravel/pint": "^1.13",
+        "nunomaduro/larastan": "^2.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Atlasphp\\Core\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Atlasphp\\Core\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Atlasphp\\Core\\Providers\\CoreServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "vendor/bin/pint",
+        "analyse": "PHPSTAN_DISABLE_PARALLEL=1 vendor/bin/phpstan analyse"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
