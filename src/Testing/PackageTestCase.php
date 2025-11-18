@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atlas\Core\Testing;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Testing\PendingCommand;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use RuntimeException;
@@ -16,16 +17,16 @@ use RuntimeException;
  */
 abstract class PackageTestCase extends OrchestraTestCase
 {
-    protected function setUp(): void
+    protected function resolveApplicationConfiguration($app): void
     {
-        parent::setUp();
+        parent::resolveApplicationConfiguration($app);
 
-        $this->configureInMemoryDatabase();
+        $this->configureInMemoryDatabase($app);
     }
 
-    protected function configureInMemoryDatabase(): void
+    protected function configureInMemoryDatabase(Application $app): void
     {
-        $config = $this->app['config'];
+        $config = $app['config'];
         $config->set('database.default', 'atlas_core_testbench');
 
         $config->set('database.connections.atlas_core_testbench', [
