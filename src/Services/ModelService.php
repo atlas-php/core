@@ -97,6 +97,22 @@ abstract class ModelService
     }
 
     /**
+     * Find a model by primary key or throw if missing.
+     *
+     * @return TModel
+     */
+    public function findOrFail(int|string $id): Model
+    {
+        $model = $this->find($id);
+
+        if ($model === null) {
+            throw (new ModelNotFoundException)->setModel($this->resolveModelClass(), [$id]);
+        }
+
+        return $model;
+    }
+
+    /**
      * Create a new model instance.
      *
      * @param  array<string, mixed>  $data
