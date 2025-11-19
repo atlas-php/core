@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use LogicException;
+use Mockery;
+use stdClass;
 
 /**
  * Class ModelServiceTest
@@ -39,6 +41,7 @@ class ModelServiceTest extends TestCase
     {
         Schema::dropIfExists('atlas_widgets');
 
+        Mockery::close();
         parent::tearDown();
     }
 
@@ -88,9 +91,62 @@ class ModelServiceTest extends TestCase
         $this->expectException(LogicException::class);
         $service->query();
     }
+
+    public function test_find_or_fail_returns_model(): void
+    {
+        $service = new StubWidgetService;
+        $created = TestAtlasModel::query()->create(['name' => 'delta']);
+
+        $found = $service->findOrFail($created->getKey());
+
+        $this->assertSame($created->getKey(), $found->getKey());
+    }
+
+    public function test_find_or_fail_throws_when_model_missing(): void
+    {
+        $service = new StubWidgetService;
+
+        $this->expectException(ModelNotFoundException::class);
+        $service->findOrFail(12345);
+    }
+
+    public function test_resolve_model_class_rejects_non_model_class_strings(): void
+    {
+        $service = new InvalidModelServiceStub;
+
+        $this->expectException(LogicException::class);
+        $service->exposeResolveModelClass();
+    }
+
+    public function test_apply_query_options_invokes_callback_and_eager_loaders(): void
+    {
+        $service = new StubWidgetService;
+        $builder = Mockery::mock(Builder::class);
+
+        $builder->shouldReceive('with')->once()->with(['relation'])->andReturnSelf();
+        $builder->shouldReceive('withCount')->once()->with('counts')->andReturnSelf();
+
+        $callbackInvoked = false;
+
+        $service->applyOptionsForTest($builder, [
+            'query' => function (Builder $passed) use ($builder, &$callbackInvoked): void {
+                $this->assertSame($builder, $passed);
+                $callbackInvoked = true;
+            },
+            'with' => ['relation'],
+            'withCount' => 'counts',
+        ]);
+
+        $this->assertTrue($callbackInvoked);
+    }
 }
 
 /**
+ * Class StubWidgetService
+ *
+ * Minimal ModelService implementation for exercising shared CRUD flows.
+ * PRD Reference: Atlas Core Extraction Plan — Shared data service helpers.
+ *
  * @extends ModelService<TestAtlasModel>
  */
 class StubWidgetService extends ModelService
@@ -106,5 +162,33 @@ class StubWidgetService extends ModelService
         }
 
         return $query;
+    }
+
+    /**
+     * @param  Builder<\Atlas\Core\Tests\Fixtures\TestAtlasModel>  $builder
+     * @param  array<string, mixed>  $options
+     * @return Builder<\Atlas\Core\Tests\Fixtures\TestAtlasModel>
+     */
+    public function applyOptionsForTest(Builder $builder, array $options): Builder
+    {
+        return $this->applyQueryOptions($builder, $options);
+    }
+}
+
+/**
+ * Class InvalidModelServiceStub
+ *
+ * Provides a misconfigured service for testing resolveModelClass guards.
+ * PRD Reference: Atlas Core Extraction Plan — Shared data service helpers.
+ *
+ * @extends ModelService<stdClass>
+ */
+class InvalidModelServiceStub extends ModelService
+{
+    protected string $model = stdClass::class;
+
+    public function exposeResolveModelClass(): string
+    {
+        return $this->resolveModelClass();
     }
 }

@@ -114,26 +114,48 @@ abstract class PackageServiceProvider extends ServiceProvider
 
     protected function configPublished(string $configFile): bool
     {
-        if (! function_exists('config_path')) {
+        if (! $this->hasConfigPathHelper()) {
             return false;
         }
 
-        return file_exists(config_path($configFile));
+        return file_exists($this->resolveConfigPath($configFile));
     }
 
     protected function migrationsPublished(string $globPattern, bool $patternIncludesMigrationsDirectory = false): bool
     {
-        if (! function_exists('database_path')) {
+        if (! $this->hasDatabasePathHelper()) {
             return false;
         }
 
         $pattern = $patternIncludesMigrationsDirectory
             ? $globPattern
-            : rtrim(database_path('migrations'), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.ltrim($globPattern, DIRECTORY_SEPARATOR);
+            : rtrim($this->resolveDatabasePath('migrations'), DIRECTORY_SEPARATOR)
+                .DIRECTORY_SEPARATOR
+                .ltrim($globPattern, DIRECTORY_SEPARATOR);
 
         $matches = glob($pattern);
 
         return $matches !== false && $matches !== [];
+    }
+
+    protected function hasConfigPathHelper(): bool
+    {
+        return function_exists('config_path');
+    }
+
+    protected function resolveConfigPath(string $configFile): string
+    {
+        return config_path($configFile);
+    }
+
+    protected function hasDatabasePathHelper(): bool
+    {
+        return function_exists('database_path');
+    }
+
+    protected function resolveDatabasePath(string $path): string
+    {
+        return database_path($path);
     }
 
     abstract protected function packageSlug(): string;
