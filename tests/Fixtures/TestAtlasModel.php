@@ -11,6 +11,8 @@ use Atlas\Core\Models\AtlasModel;
  *
  * Test fixture model that reads its configuration from the atlas-testing namespace.
  * PRD Reference: Atlas Core Extraction Plan — Shared data abstractions.
+ *
+ * @property string $name
  */
 class TestAtlasModel extends AtlasModel
 {

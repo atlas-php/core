@@ -29,6 +29,9 @@ Laravel auto-discovers `Atlas\Core\Providers\CoreServiceProvider`.
 ### Configurable Models
 `AtlasModel` + `TableResolver` allow all packages to override tables and connections via config.
 
+### Model Services
+`Atlas\Core\Services\ModelService` offers shared CRUD helpers for Eloquent-backed services while allowing packages to extend/override query behavior. See [Shared Model Service](./docs/Packages.md#shared-model-service).
+
 ### Publishing & Providers
 `PackageServiceProvider` and `TagBuilder` give every package consistent config/migration publishing and install reminders.
 

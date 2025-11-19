@@ -128,6 +128,30 @@ Key points:
 - Use `tags()` for consistent publish tags.
 - Use `notifyPendingInstallSteps()` to surface missing publish steps in the console.
 
+## Services
+
+Service classes that wrap a single Eloquent model should extend `Atlas\Core\Services\ModelService`:
+
+```php
+use Atlas\Core\Services\ModelService;
+use Atlas\Assets\Models\Asset;
+use Illuminate\Database\Eloquent\Builder;
+
+/** @extends ModelService<Asset> */
+final class AssetService extends ModelService
+{
+    protected string $model = Asset::class;
+
+    public function buildQuery(array $options = []): Builder
+    {
+        return parent::buildQuery($options)
+            ->when($options['category'] ?? null, fn ($query, $category) => $query->where('category', $category));
+    }
+}
+```
+
+This keeps CRUD logic centralized while letting packages hook in domain-specific filters via `buildQuery()`.
+
 ## Config & Environment Overrides
 
 Configuration should expose both table names and connection options, with safe defaults:
