@@ -65,14 +65,17 @@ abstract class ModelService
      */
     public function list(array $columns = ['*'], array $options = []): Collection
     {
-        return $this->applyQueryOptions($this->buildQuery($options), $options)->get($columns);
+        /** @var Collection<int, TModel> $results */
+        $results = $this->applyQueryOptions($this->buildQuery($options), $options)->get($columns);
+
+        return $results;
     }
 
     /**
      * Retrieve a paginated list of models.
      *
      * @param  array<string, mixed>  $options
-     * @return LengthAwarePaginator<TModel>
+     * @return LengthAwarePaginator<int, TModel>
      */
     public function listPaginated(int $perPage = 15, array $options = []): LengthAwarePaginator
     {
@@ -83,7 +86,10 @@ abstract class ModelService
                 return $builder->orderBy($options['sortField'], $direction);
             });
 
-        return $query->paginate($perPage)->withQueryString();
+        /** @var LengthAwarePaginator<int, TModel> $paginator */
+        $paginator = $query->paginate($perPage)->withQueryString();
+
+        return $paginator;
     }
 
     /**

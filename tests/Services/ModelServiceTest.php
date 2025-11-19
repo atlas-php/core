@@ -61,7 +61,8 @@ class ModelServiceTest extends TestCase
 
         $paginated = $service->listPaginated(1, ['sortField' => 'name', 'sortOrder' => 0]);
         $this->assertSame(2, $paginated->total());
-        $this->assertSame('bravo', $paginated->items()[0]->name);
+        $items = array_values($paginated->items());
+        $this->assertSame('bravo', $items[0]->name);
     }
 
     public function test_create_update_and_delete_flow(): void
