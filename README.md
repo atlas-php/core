@@ -1,5 +1,9 @@
 # Atlas Core
 
+[![Build](https://github.com/atlas-php/core/actions/workflows/tests.yml/badge.svg)](https://github.com/atlas-php/core/actions/workflows/tests.yml)
+[![coverage](https://codecov.io/github/atlas-php/core/branch/main/graph/badge.svg)](https://codecov.io/github/atlas-php/core)
+[![License](https://img.shields.io/github/license/atlas-php/core.svg)](LICENSE)
+
 **Atlas Core** provides the shared foundation for all Atlas PHP packages — testing harnesses, configuration helpers, and publishing conventions. It standardizes behaviors so each package can stay small, predictable, and focused on its domain.
 
 ## Table of Contents
