@@ -1,9 +1,20 @@
 # Atlas Core
 
-Atlas Core provides the common infrastructure all Atlas packages share—testing harnesses, configuration helpers, publishing conventions, and metadata contracts—so every downstream package can focus purely on its domain.
+**Atlas Core** provides the shared foundation for all Atlas PHP packages — testing harnesses, configuration helpers, publishing conventions, and metadata contracts. It standardizes behaviors so each package can stay small, predictable, and focused on its domain.
 
-## Install
+## Table of Contents
+- [Overview](#overview)
+- [Installation](#installation)
+- [Key Components](#key-components)
+- [Quality Assurance](#quality-assurance)
+- [Also See](#also-see)
+- [Contributing](#contributing)
+- [License](#license)
 
+## Overview
+Atlas Core centralizes package infrastructure: consistent testing, configurable models, publish pipelines, provider conventions, and metadata contracts. Every Atlas package builds on this shared layer.
+
+## Installation
 ```bash
 composer require atlas-php/core
 ```
@@ -12,25 +23,32 @@ Laravel auto-discovers `Atlas\Core\Providers\CoreServiceProvider`.
 
 ## Key Components
 
-- **Testing harness** — `PackageTestCase` standardizes the Testbench environment, migration loading, and artisan helpers. [Learn more ➜](./docs/Packages.md#testing-with-packagetestcase)
-- **Configurable models** — `Atlas\Core\Models\AtlasModel` and the `TableResolver` centralize table/connection overrides. [Learn more ➜](./docs/Packages.md#configurable-models--table-resolver)
-- **Provider & publish helpers** — `PackageServiceProvider` + `TagBuilder` handle config/migration publishing and install reminders. [Learn more ➜](./docs/Packages.md#package-service-providers--publishing)
-- **Metadata contract** — `CoreServiceInterface` exposes package identification that consumers can override when needed.
+### Testing Harness
+`PackageTestCase` standardizes Testbench usage, migration setup, sqlite defaults, and artisan helpers.
 
-See the [Package Integration Guide](./docs/Packages.md) and the detailed [Package Implementation Example](./docs/Example.md) for end-to-end usage patterns and sample structures.
+### Configurable Models
+`AtlasModel` + `TableResolver` allow all packages to override tables and connections via config.
+
+### Publishing & Providers
+`PackageServiceProvider` and `TagBuilder` give every package consistent config/migration publishing and install reminders.
+
+### Metadata Contract
+`CoreServiceInterface` provides package identity and consumer override hooks.
 
 ## Quality Assurance
 
 | Command            | Purpose                                |
 |--------------------|----------------------------------------|
-| `composer lint`    | Formats the codebase via Laravel Pint. |
-| `composer analyse` | Runs Larastan static analysis.         |
-| `composer test`    | Executes PHPUnit test suite.           |
+| `composer lint`    | Format code with Laravel Pint.         |
+| `composer analyse` | Run Larastan static analysis.          |
+| `composer test`    | Execute PHPUnit test suite.            |
+
+## Also See
+- [Package Integration Guide](./docs/Packages.md)
+- [Package Implementation Example](./docs/Example.md)
 
 ## Contributing
-
-See the [Contributing Guide](./CONTRIBUTING.md). All work must align with PRDs and agent workflow rules defined in [AGENTS.md](./AGENTS.md).
+See the [Contributing Guide](./CONTRIBUTING.md).
 
 ## License
-
 MIT — see [LICENSE](./LICENSE).

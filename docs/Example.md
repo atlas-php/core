@@ -2,9 +2,21 @@
 
 This reference outlines how a typical Atlas package should be structured when it depends on `atlas-php/core`. Use it as a checklist when scaffolding new packages or refactoring existing ones.
 
+## Table of Contents
+- [Directory Layout](#directory-layout)
+- [Composer Configuration](#composer-configuration)
+- [Service Provider Pattern](#service-provider-pattern)
+- [Config & Environment Overrides](#config--environment-overrides)
+- [Models & Database](#models--database)
+- [Testing](#testing)
+- [Documentation Expectations](#documentation-expectations)
+- [QA Checklist](#qa-checklist)
+
 ## Directory Layout
 
-```
+A recommended layout for Atlas packages:
+
+```text
 example-package/
 ├── composer.json
 ├── docs/
@@ -32,7 +44,7 @@ example-package/
 
 ## Composer Configuration
 
-- Require `atlas-php/core` alongside Laravel components you need (`illuminate/support`, `illuminate/database`, etc.).
+- Require `atlas-php/core` alongside the Laravel components you need (`illuminate/support`, `illuminate/database`, etc.).
 - Include a `path` repository for local development inside the mono-repo so Composer symlinks to `../core` automatically.
 - Register your package provider under `extra.laravel.providers` for auto-discovery.
 
@@ -44,11 +56,20 @@ example-package/
     },
     "repositories": [
         {"type": "path", "url": "../core", "options": {"symlink": true}}
-    ]
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Vendor\\Example\\Providers\\ExamplePackageServiceProvider"
+            ]
+        }
+    }
 }
 ```
 
 ## Service Provider Pattern
+
+Packages should extend `Atlas\Core\Providers\PackageServiceProvider` to inherit common behavior:
 
 ```php
 use Atlas\Core\Providers\PackageServiceProvider;
@@ -64,8 +85,15 @@ final class ExamplePackageServiceProvider extends PackageServiceProvider
 
     public function register(): void
     {
-        $this->mergeConfigFrom($this->packageConfigPath('example-package.php'), 'example-package');
-        $this->app->singleton(Contracts\ExampleServiceInterface::class, Services\ExampleService::class);
+        $this->mergeConfigFrom(
+            $this->packageConfigPath('example-package.php'),
+            'example-package'
+        );
+
+        $this->app->singleton(
+            Contracts\ExampleServiceInterface::class,
+            Services\ExampleService::class
+        );
     }
 
     public function boot(): void
@@ -93,11 +121,16 @@ final class ExamplePackageServiceProvider extends PackageServiceProvider
 }
 ```
 
+Key points:
+
+- Use `packageBasePath` once to anchor all paths.
+- Use `packageConfigPath()` / `packageDatabasePath()` / `packagePath()` helpers instead of hard-coding paths.
+- Use `tags()` for consistent publish tags.
+- Use `notifyPendingInstallSteps()` to surface missing publish steps in the console.
+
 ## Config & Environment Overrides
 
-- Store configurable table names under `example-package.tables.*`.
-- Store optional connection overrides under `example-package.database.connection`.
-- Provide sensible defaults so the package works without consumer overrides.
+Configuration should expose both table names and connection options, with safe defaults:
 
 ```php
 return [
@@ -110,10 +143,15 @@ return [
 ];
 ```
 
+Guidelines:
+
+- Store configurable table names under `example-package.tables.*`.
+- Store optional connection overrides under `example-package.database.connection`.
+- Default values should work out of the box without requiring any environment overrides.
+
 ## Models & Database
 
-- Extend `Atlas\Core\Models\AtlasModel` for any Eloquent model so table names/connections respect config overrides.
-- Keep migrations inside `database/migrations` and ensure they read config defaults when creating tables.
+Models should extend `Atlas\Core\Models\AtlasModel` so they automatically resolve table names and connections from config:
 
 ```php
 use Atlas\Core\Models\AtlasModel;
@@ -130,14 +168,16 @@ final class ExampleRecord extends AtlasModel
 }
 ```
 
+Migrations should live under `database/migrations` and respect the same config-driven defaults where possible when creating tables.
+
 ## Testing
 
-- Base test classes should extend `Atlas\Core\Testing\PackageTestCase`.
-- Register your service provider via `getPackageProviders`.
-- Load migrations via `loadPackageMigrations` in `defineDatabaseMigrations`.
-- Use `runPendingCommand()` when asserting artisan command output/exit codes.
+Base test classes should extend `Atlas\Core\Testing\PackageTestCase`:
 
 ```php
+use Atlas\Core\Testing\PackageTestCase;
+use Vendor\Example\Providers\ExamplePackageServiceProvider;
+
 abstract class TestCase extends PackageTestCase
 {
     protected function getPackageProviders($app): array
@@ -152,20 +192,31 @@ abstract class TestCase extends PackageTestCase
 }
 ```
 
+Recommended helpers:
+
+- `loadPackageMigrations($paths)` registers package migrations.
+- `runPendingCommand($command, $parameters = [])` returns a `PendingCommand` so you can assert exit codes, output, etc.
+- The base class configures an in-memory sqlite connection (`atlas_core_testbench`) for most packages.
+
+Packages should only override the database configuration when absolutely necessary.
+
 ## Documentation Expectations
 
-- `README.md` should explain installation, configuration keys, published resources, and usage examples.
-- `docs/Install.md` must document the publish/migration workflow, config keys, and any manual setup steps.
-- `docs/Full-API.md` enumerates contracts, facades, events, and public services for consumers.
-- Additional PRDs or feature briefs also live under `docs/`.
-- All classes require PHPDoc blocks referencing the relevant PRD.
+Each package should include:
+
+- `README.md` explaining installation, configuration keys, published resources, and basic usage examples.
+- `docs/Install.md` describing publish/migration workflow, key config options, and any manual setup.
+- `docs/Full-API.md` listing contracts, facades, events, and public services.
+- Additional PRDs or feature briefs under `docs/` as needed.
+- PHPDoc blocks on public classes and methods that reference the relevant PRD or documentation section.
 
 ## QA Checklist
 
-- `composer lint`
-- `composer analyse`
-- `composer test`
-- `composer dump-autoload`
-- Verify publish tags + migrations, confirm config defaults align with the PRD.
+Before tagging a release:
 
-Following this template keeps every Atlas package aligned with the conventions defined in `AGENTS.md` while taking full advantage of the shared tooling provided by Atlas Core.
+- `composer lint` — code style (Laravel Pint).
+- `composer analyse` — static analysis (Larastan).
+- `composer test` — test suite.
+- `composer dump-autoload` — confirm classmap/autoloading.
+- Verify publish tags and migrations behave as expected.
+- Confirm config defaults align with the documented PRDs.
