@@ -1,6 +1,6 @@
 # Atlas Core
 
-**Atlas Core** provides the shared foundation for all Atlas PHP packages — testing harnesses, configuration helpers, publishing conventions, and metadata contracts. It standardizes behaviors so each package can stay small, predictable, and focused on its domain.
+**Atlas Core** provides the shared foundation for all Atlas PHP packages — testing harnesses, configuration helpers, and publishing conventions. It standardizes behaviors so each package can stay small, predictable, and focused on its domain.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -12,14 +12,12 @@
 - [License](#license)
 
 ## Overview
-Atlas Core centralizes package infrastructure: consistent testing, configurable models, publish pipelines, provider conventions, and metadata contracts. Every Atlas package builds on this shared layer.
+Atlas Core centralizes package infrastructure: consistent testing, configurable models, publish pipelines, and provider conventions. Every Atlas package builds on this shared layer.
 
 ## Installation
 ```bash
 composer require atlas-php/core
 ```
-
-Laravel auto-discovers `Atlas\Core\Providers\CoreServiceProvider`.
 
 ## Key Components
 
@@ -34,9 +32,6 @@ Laravel auto-discovers `Atlas\Core\Providers\CoreServiceProvider`.
 
 ### Publishing & Providers
 `PackageServiceProvider` and `TagBuilder` give every package consistent config/migration publishing and install reminders.
-
-### Metadata Contract
-`CoreServiceInterface` provides package identity and consumer override hooks.
 
 ## Quality Assurance
 

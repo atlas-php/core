@@ -23,13 +23,6 @@
             "Atlas\\Core\\Tests\\": "tests/"
         }
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Atlas\\Core\\Providers\\CoreServiceProvider"
-            ]
-        }
-    },
     "scripts": {
         "test": "phpunit",
         "lint": "vendor/bin/pint",

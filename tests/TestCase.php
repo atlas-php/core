@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Atlas\Core\Tests;
 
-use Atlas\Core\Providers\CoreServiceProvider;
 use Atlas\Core\Testing\PackageTestCase;
 
 /**
@@ -15,8 +14,5 @@ use Atlas\Core\Testing\PackageTestCase;
  */
 abstract class TestCase extends PackageTestCase
 {
-    protected function getPackageProviders($app): array
-    {
-        return [CoreServiceProvider::class];
-    }
+    // Core does not require auto-loaded providers for its test suite.
 }
