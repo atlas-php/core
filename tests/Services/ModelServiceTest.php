@@ -13,6 +13,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use LogicException;
 use Mockery;
+use Mockery\Expectation;
+use Mockery\MockInterface;
 use stdClass;
 
 /**
@@ -112,19 +114,26 @@ class ModelServiceTest extends TestCase
 
     public function test_resolve_model_class_rejects_non_model_class_strings(): void
     {
-        $service = new InvalidModelServiceStub;
+        $service = new StubWidgetService;
+        $service->overrideModelClass(stdClass::class);
 
         $this->expectException(LogicException::class);
-        $service->exposeResolveModelClass();
+        $service->forceResolveModelClass();
     }
 
     public function test_apply_query_options_invokes_callback_and_eager_loaders(): void
     {
         $service = new StubWidgetService;
+        /** @var Builder<TestAtlasModel>&MockInterface $builder */
         $builder = Mockery::mock(Builder::class);
 
-        $builder->shouldReceive('with')->once()->with(['relation'])->andReturnSelf();
-        $builder->shouldReceive('withCount')->once()->with('counts')->andReturnSelf();
+        /** @var Expectation $withExpectation */
+        $withExpectation = $builder->shouldReceive('with');
+        $withExpectation->once()->with(['relation'])->andReturnSelf();
+
+        /** @var Expectation $withCountExpectation */
+        $withCountExpectation = $builder->shouldReceive('withCount');
+        $withCountExpectation->once()->with('counts')->andReturnSelf();
 
         $callbackInvoked = false;
 
@@ -173,21 +182,17 @@ class StubWidgetService extends ModelService
     {
         return $this->applyQueryOptions($builder, $options);
     }
-}
 
-/**
- * Class InvalidModelServiceStub
- *
- * Provides a misconfigured service for testing resolveModelClass guards.
- * PRD Reference: Atlas Core Extraction Plan — Shared data service helpers.
- *
- * @extends ModelService<stdClass>
- */
-class InvalidModelServiceStub extends ModelService
-{
-    protected string $model = stdClass::class;
+    /**
+     * @param  class-string  $modelClass
+     */
+    public function overrideModelClass(string $modelClass): void
+    {
+        /** @phpstan-ignore-next-line testing invalid model assignment */
+        $this->model = $modelClass;
+    }
 
-    public function exposeResolveModelClass(): string
+    public function forceResolveModelClass(): string
     {
         return $this->resolveModelClass();
     }

@@ -37,6 +37,9 @@ class PackageTestCaseHarness extends PackageTestCase
         }
     }
 
+    /**
+     * @param  array<int, string>|string  $paths
+     */
     public function loadMigrationsThroughHelper(string|array $paths): void
     {
         $this->loadPackageMigrations($paths);
@@ -55,6 +58,9 @@ class PackageTestCaseHarness extends PackageTestCase
         $this->artisanHandler = $handler;
     }
 
+    /**
+     * @param  array<string, mixed>  $parameters
+     */
     public function artisan($command, $parameters = [])
     {
         if ($this->artisanHandler !== null) {
@@ -64,6 +70,9 @@ class PackageTestCaseHarness extends PackageTestCase
         return parent::artisan($command, $parameters);
     }
 
+    /**
+     * @param  array<string, mixed>  $parameters
+     */
     public function runPendingCommandThroughHelper(string $command, array $parameters = []): PendingCommand
     {
         return $this->runPendingCommand($command, $parameters);
