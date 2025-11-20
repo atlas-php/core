@@ -50,7 +50,7 @@ composer require atlas-php/core
 - [Package Implementation Example](./docs/Example.md)
 
 ## Contributing
-See the [Contributing Guide](./CONTRIBUTING.md).
+See the [Contributing Guide](.github/CONTRIBUTING.md).
 
 ## License
 MIT — see [LICENSE](./LICENSE).
